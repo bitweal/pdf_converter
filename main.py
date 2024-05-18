@@ -1,6 +1,7 @@
 from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 import fitz
 import os
+from pdf2docx import Converter
 
 
 def merge_pdfs(pdf_list, output):
@@ -39,8 +40,15 @@ def compress_pdf(input_pdf, output_pdf, dpi=100):
     doc.close()
 
 
+def pdf_to_word(input_pdf, output_docx):
+    cv = Converter(input_pdf)
+    cv.convert(output_docx, start=0, end=None)
+    cv.close()
+
+
 if __name__ == '__main__':
     pdf_file = 'media/iasa-open_21_.pdf'
     #merge_pdfs([pdf_file for _ in range(100)], 'media/merge_pdfs.pdf')
     #split_pdf('media/merge_pdfs.pdf', 15, 42, 'media/split.pdf')
-    compress_pdf('media/merge_pdfs.pdf', 'media/compress_pdf.pdf', 100)
+    #compress_pdf('media/merge_pdfs.pdf', 'media/compress_pdf.pdf', 100)
+    pdf_to_word(pdf_file, 'media/pdf_to_word.docx')
