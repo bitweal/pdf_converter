@@ -1,4 +1,4 @@
-from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+from PyPDF2 import PdfMerger, PdfReader, PdfWriter, PdfFileReader
 import fitz
 import os
 from pdf2docx import Converter
@@ -46,9 +46,14 @@ def pdf_to_word(input_pdf, output_docx):
     cv.close()
 
 
+def pdf_to_pptx(pdf_path, pptx_path):
+    pass
+
+
 if __name__ == '__main__':
     pdf_file = 'media/iasa-open_21_.pdf'
     #merge_pdfs([pdf_file for _ in range(100)], 'media/merge_pdfs.pdf')
     #split_pdf('media/merge_pdfs.pdf', 15, 42, 'media/split.pdf')
     #compress_pdf('media/merge_pdfs.pdf', 'media/compress_pdf.pdf', 100)
-    pdf_to_word(pdf_file, 'media/pdf_to_word.docx')
+    #pdf_to_word(pdf_file, 'media/pdf_to_word.docx')
+    #pdf_to_pptx('media/pdf_to_word.docx', 'media/pdf_to_pptx.pptx')
