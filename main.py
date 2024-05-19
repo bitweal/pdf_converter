@@ -2,8 +2,10 @@ from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 import fitz
 import os
 from pdf2docx import Converter
-import pdfplumber
+import tabula
 import pandas as pd
+from docx2pdf import convert
+import comtypes.client
 
 
 def merge_pdfs(pdf_list, output):
@@ -52,8 +54,24 @@ def pdf_to_pptx(pdf_path, pptx_path):
     pass
 
 
-def pdf_to_excel(input_pdf, output_excel):
-    pass
+def pdf_to_excel(pdf_file_path, excel_file_path):
+    tables = tabula.read_pdf(pdf_file_path, pages='all')
+    with pd.ExcelWriter(excel_file_path) as writer:
+        for i, table in enumerate(tables):
+            table.to_excel(writer, sheet_name=f'Sheet{i+1}')
+
+
+def word_to_pdf(input_docx, output_pdf):
+    convert(input_docx, output_pdf)
+
+
+def ppt_to_pdf(input_pptx, output_pdf):
+    powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
+    powerpoint.Visible = 1
+    deck = powerpoint.Presentations.Open(input_pptx)
+    deck.SaveAs(output_pdf, 32)
+    deck.Close()
+    powerpoint.Quit()
 
 
 if __name__ == '__main__':
@@ -64,3 +82,5 @@ if __name__ == '__main__':
     #pdf_to_word(pdf_file, 'media/pdf_to_word.docx')
     #pdf_to_pptx('media/pdf_to_word.docx', 'media/pdf_to_pptx.pptx')
     #pdf_to_excel(pdf_file, 'media/pdf_to_excel.xlsx')
+    #word_to_pdf('media/pdf_to_word.docx', 'media/word_to_pdf.pdf')
+    #ppt_to_pdf('media/pdf_to_pptx.pptx', 'media/ppt_to_pdf.pdf')
