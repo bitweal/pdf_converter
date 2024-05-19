@@ -74,6 +74,15 @@ def ppt_to_pdf(input_pptx, output_pdf):
     powerpoint.Quit()
 
 
+def excel_to_pdf(input_xlsx, output_pdf):
+    excel = comtypes.client.CreateObject('Excel.Application')
+    excel.Visible = False
+    wb = excel.Workbooks.Open(input_xlsx)
+    wb.ExportAsFixedFormat(0, output_pdf)
+    wb.Close()
+    excel.Quit()
+
+
 if __name__ == '__main__':
     pdf_file = 'media/iasa-open_21_.pdf'
     #merge_pdfs([pdf_file for _ in range(100)], 'media/merge_pdfs.pdf')
@@ -84,3 +93,5 @@ if __name__ == '__main__':
     #pdf_to_excel(pdf_file, 'media/pdf_to_excel.xlsx')
     #word_to_pdf('media/pdf_to_word.docx', 'media/word_to_pdf.pdf')
     #ppt_to_pdf('media/pdf_to_pptx.pptx', 'media/ppt_to_pdf.pdf')
+    #excel_to_pdf('media/pdf_to_excel.xlsx', 'media/excel_to_pdf.pdf')
+
