@@ -8,12 +8,16 @@ import shutil
 import subprocess
 from openpyxl import load_workbook
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak, Image, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak, Image, Paragraph, Frame
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.styles import getSampleStyleSheet
 from pdf2image import convert_from_path
 from fpdf import FPDF
+import asyncio
+from pyppeteer import launch
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
 
 
 def merge_pdfs(pdf_list, output):
@@ -158,7 +162,46 @@ def jpg_to_pdf(input_folder, output_pdf):
     pdf.output(output_pdf, "F")
 
 
+def html_to_pdf(url, output_path):
+    async def _html_to_pdf():
+        browser = await launch(headless=True)
+        page = await browser.newPage()
+        await page.goto(url, {'waitUntil': 'networkidle2'})
+        await page.pdf({'path': output_path, 'format': 'A4'})
+        await browser.close()
+        print(f"PDF successfully created at {output_path}")
 
+    asyncio.get_event_loop().run_until_complete(_html_to_pdf())
+
+
+def create_page_pdf(num, tmp, position=(105*mm, 20*mm)):
+    c = canvas.Canvas(tmp)
+    for i in range(1, num + 1):
+        c.drawString(position[0], position[1], str(i))
+        c.showPage()
+    c.save()
+
+
+def add_page_numbers(pdf_path, newpath, position=(100, 20)):
+    tmp = "__tmp.pdf"
+    position = (position[0]*mm, position[1]*mm)
+    writer = PdfWriter()
+    with open(pdf_path, "rb") as f:
+        reader = PdfReader(f)
+        n = len(reader.pages)
+        create_page_pdf(n, tmp, position)
+
+        with open(tmp, "rb") as ftmp:
+            number_pdf = PdfReader(ftmp)
+            for p in range(n):
+                page = reader.pages[p]
+                number_layer = number_pdf.pages[p]
+                page.merge_page(number_layer)
+                writer.add_page(page)
+            if len(writer.pages) > 0:
+                with open(newpath, "wb") as f:
+                    writer.write(f)
+        os.remove(tmp)
 
 
 if __name__ == '__main__':
@@ -174,4 +217,6 @@ if __name__ == '__main__':
     #excel_to_pdf('media/pdf_to_excel.xlsx', 'media/excel_to_pdf.pdf')
     #pdf_to_jpg(pdf_file, 'media/pdf_to_jpg')
     #jpg_to_pdf('media/pdf_to_jpg', 'media/jpg_to_pdf.pdf')
+    #html_to_pdf('https://www.facebook.com/', 'media/html_to_pdf.pdf')
+    #add_page_numbers(pdf_file, 'media/add_page_numbers.pdf', (0,0))
 
