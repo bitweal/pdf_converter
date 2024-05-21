@@ -263,6 +263,9 @@ if __name__ == '__main__':
     parser.add_argument('--dpi', type=int, help='DPI (for compress operation)')
     parser.add_argument('--password', help='Password (for protect_pdf and unlock_pdf operations)')
     parser.add_argument('--url', help='URL (for html_to_pdf operation)')
+    parser.add_argument('--position', choices=['left_bottom', 'left_middle', 'left_top', 'middle_top', 'middle_middle',
+                                               'middle_bottom', 'right_bottom', 'right_middle', 'right_top'],
+                        help='Position for page numbers')
     args = parser.parse_args()
 
     if args.function == 'merge':
@@ -290,8 +293,20 @@ if __name__ == '__main__':
     elif args.function == 'html_to_pdf':
         html_to_pdf(args.url, args.output)
     elif args.function == 'add_page_numbers':
-        add_page_numbers(args.input, args.output)
+        positions = {
+            'left_bottom': (10, 10),
+            'left_middle': (10, 148),
+            'left_top': (10, 280),
+            'middle_top': (105, 280),
+            'middle_middle': (105, 148),
+            'middle_bottom': (105, 10),
+            'right_bottom': (200, 10),
+            'right_middle': (200, 148),
+            'right_top': (200, 280)
+        }
+        add_page_numbers(args.input, args.output, positions[args.position])
     elif args.function == 'protect_pdf':
         protect_pdf(args.input, args.output, args.password)
     elif args.function == 'unlock_pdf':
         unlock_pdf(args.input, args.output, args.password)
+
