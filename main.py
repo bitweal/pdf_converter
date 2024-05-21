@@ -138,6 +138,7 @@ def pdf_to_jpg(input_pdf, output_folder):
     for i, image in enumerate(images):
         output_path = os.path.join(output_folder, f'page_{i + 1}.jpg')
         image.save(output_path, 'JPEG')
+    shutil.make_archive(output_folder, 'zip', output_folder)
 
 
 def custom_sort_key(filename):
@@ -204,8 +205,35 @@ def add_page_numbers(pdf_path, newpath, position=(100, 20)):
         os.remove(tmp)
 
 
+def protect_pdf(input_pdf, output_pdf, password):
+    reader = PdfReader(input_pdf)
+    writer = PdfWriter()
+
+    for page_num in range(len(reader.pages)):
+        writer.add_page(reader.pages[page_num])
+
+    writer.encrypt(password)
+
+    with open(output_pdf, "wb") as output_file:
+        writer.write(output_file)
+
+
+def unlock_pdf(input_pdf, output_pdf, password):
+    reader = PdfReader(input_pdf)
+    if reader.is_encrypted:
+        reader.decrypt(password)
+
+    writer = PdfWriter()
+
+    for page_num in range(len(reader.pages)):
+        writer.add_page(reader.pages[page_num])
+
+    with open(output_pdf, "wb") as output_file:
+        writer.write(output_file)
+
+
 if __name__ == '__main__':
-    pdf_file = 'media/iasa-open_21_.pdf'
+    pdf_file = 'file.pdf'
     #merge_pdfs([pdf_file for _ in range(100)], 'media/merge_pdfs.pdf')
     #split_pdf('media/merge_pdfs.pdf', 15, 42, 'media/split.pdf')
     #compress_pdf('media/merge_pdfs.pdf', 'media/compress_pdf.pdf', 100)
@@ -219,4 +247,5 @@ if __name__ == '__main__':
     #jpg_to_pdf('media/pdf_to_jpg', 'media/jpg_to_pdf.pdf')
     #html_to_pdf('https://www.facebook.com/', 'media/html_to_pdf.pdf')
     #add_page_numbers(pdf_file, 'media/add_page_numbers.pdf', (0,0))
-
+    #protect_pdf(pdf_file, 'media/protected.pdf', '1111')
+    #unlock_pdf("media/protected.pdf", "media/unlocked.pdf", "1111")
