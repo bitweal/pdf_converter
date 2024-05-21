@@ -18,6 +18,7 @@ import asyncio
 from pyppeteer import launch
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
+import argparse
 
 
 def merge_pdfs(pdf_list, output):
@@ -233,7 +234,7 @@ def unlock_pdf(input_pdf, output_pdf, password):
 
 
 if __name__ == '__main__':
-    pdf_file = 'file.pdf'
+    pdf_file = 'media/iasa-open_21_.pdf'
     #merge_pdfs([pdf_file for _ in range(100)], 'media/merge_pdfs.pdf')
     #split_pdf('media/merge_pdfs.pdf', 15, 42, 'media/split.pdf')
     #compress_pdf('media/merge_pdfs.pdf', 'media/compress_pdf.pdf', 100)
@@ -249,3 +250,48 @@ if __name__ == '__main__':
     #add_page_numbers(pdf_file, 'media/add_page_numbers.pdf', (0,0))
     #protect_pdf(pdf_file, 'media/protected.pdf', '1111')
     #unlock_pdf("media/protected.pdf", "media/unlocked.pdf", "1111")
+
+    parser = argparse.ArgumentParser(description='PDF Utility Script')
+    parser.add_argument('function', choices=['merge', 'split', 'compress', 'pdf_to_word', 'pdf_to_pptx', 'pdf_to_excel',
+                                             'word_to_pdf', 'ppt_to_pdf', 'excel_to_pdf', 'pdf_to_jpg', 'jpg_to_pdf',
+                                             'html_to_pdf', 'add_page_numbers', 'protect_pdf', 'unlock_pdf'],
+                        help='Choose a function to execute')
+    parser.add_argument('--input', help='Input file')
+    parser.add_argument('--output', help='Output file')
+    parser.add_argument('--start_page', type=int, help='Start page (for split operation)')
+    parser.add_argument('--end_page', type=int, help='End page (for split operation)')
+    parser.add_argument('--dpi', type=int, help='DPI (for compress operation)')
+    parser.add_argument('--password', help='Password (for protect_pdf and unlock_pdf operations)')
+    parser.add_argument('--url', help='URL (for html_to_pdf operation)')
+    args = parser.parse_args()
+
+    if args.function == 'merge':
+        merge_pdfs(args.input.split(','), args.output)
+    elif args.function == 'split':
+        split_pdf(args.input, args.start_page, args.end_page, args.output)
+    elif args.function == 'compress':
+        compress_pdf(args.input, args.output, args.dpi)
+    elif args.function == 'pdf_to_word':
+        pdf_to_word(args.input, args.output)
+    elif args.function == 'pdf_to_pptx':
+        pdf_to_pptx(args.input, args.output)
+    elif args.function == 'pdf_to_excel':
+        pdf_to_excel(args.input, args.output)
+    elif args.function == 'word_to_pdf':
+        word_to_pdf(args.input, args.output)
+    elif args.function == 'ppt_to_pdf':
+        ppt_to_pdf(args.input, args.output)
+    elif args.function == 'excel_to_pdf':
+        excel_to_pdf(args.input, args.output)
+    elif args.function == 'pdf_to_jpg':
+        pdf_to_jpg(args.input, args.output)
+    elif args.function == 'jpg_to_pdf':
+        jpg_to_pdf(args.input, args.output)
+    elif args.function == 'html_to_pdf':
+        html_to_pdf(args.url, args.output)
+    elif args.function == 'add_page_numbers':
+        add_page_numbers(args.input, args.output)
+    elif args.function == 'protect_pdf':
+        protect_pdf(args.input, args.output, args.password)
+    elif args.function == 'unlock_pdf':
+        unlock_pdf(args.input, args.output, args.password)
