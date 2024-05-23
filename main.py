@@ -19,6 +19,7 @@ from pyppeteer import launch
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 import argparse
+import uuid
 
 
 def merge_pdfs(pdf_list, output):
@@ -46,7 +47,8 @@ def compress_pdf(input_pdf, output_pdf, dpi=100):
         page = doc.load_page(page_num)
         rect = page.rect
         pix = page.get_pixmap(dpi=dpi)
-        image_path = f"media/temp_page_{page_num}.jpg"
+        unique_id = uuid.uuid4()
+        image_path = f"/tmp/comoress_{unique_id}_temp_page_{page_num}.jpg"
         pix.save(image_path)
         new_page = new_doc.new_page(width=rect.width, height=rect.height)
         new_page.insert_image(rect, filename=image_path)
@@ -234,10 +236,10 @@ def unlock_pdf(input_pdf, output_pdf, password):
 
 
 if __name__ == '__main__':
-    pdf_file = 'media/iasa-open_21_.pdf'
+    #pdf_file = 'test.pdf'
     #merge_pdfs([pdf_file for _ in range(100)], 'media/merge_pdfs.pdf')
     #split_pdf('media/merge_pdfs.pdf', 15, 42, 'media/split.pdf')
-    #compress_pdf('media/merge_pdfs.pdf', 'media/compress_pdf.pdf', 100)
+    #compress_pdf(pdf_file, 'media/compress_pdf.pdf', 100)
     #pdf_to_word(pdf_file, 'media/pdf_to_word.docx')
     #pdf_to_pptx('media/pdf_to_word.docx', 'media/pdf_to_pptx.pptx')
     #pdf_to_excel(pdf_file, 'media/pdf_to_excel.xlsx')
@@ -252,10 +254,10 @@ if __name__ == '__main__':
     #unlock_pdf("media/protected.pdf", "media/unlocked.pdf", "1111")
 
     parser = argparse.ArgumentParser(description='PDF Utility Script')
-    parser.add_argument('function', choices=['merge', 'split', 'compress', 'pdf_to_word', 'pdf_to_pptx', 'pdf_to_excel',
-                                             'word_to_pdf', 'ppt_to_pdf', 'excel_to_pdf', 'pdf_to_jpg', 'jpg_to_pdf',
-                                             'html_to_pdf', 'add_page_numbers', 'protect_pdf', 'unlock_pdf'],
-                        help='Choose a function to execute')
+    parser.add_argument('function', choices=['merge', 'split', 'compress', 'pdf_to_word', 'pdf_to_pptx',
+                                             'pdf_to_excel', 'word_to_pdf', 'ppt_to_pdf', 'excel_to_pdf', 'pdf_to_jpg',
+                                             'jpg_to_pdf', 'html_to_pdf', 'add_page_numbers', 'protect_pdf',
+                                             'unlock_pdf'], help='Choose a function to execute')
     parser.add_argument('--input', help='Input file')
     parser.add_argument('--output', help='Output file')
     parser.add_argument('--start_page', type=int, help='Start page (for split operation)')
@@ -263,9 +265,9 @@ if __name__ == '__main__':
     parser.add_argument('--dpi', type=int, help='DPI (for compress operation)')
     parser.add_argument('--password', help='Password (for protect_pdf and unlock_pdf operations)')
     parser.add_argument('--url', help='URL (for html_to_pdf operation)')
-    parser.add_argument('--position', choices=['left_bottom', 'left_middle', 'left_top', 'middle_top', 'middle_middle',
-                                               'middle_bottom', 'right_bottom', 'right_middle', 'right_top'],
-                        help='Position for page numbers')
+    parser.add_argument('--position', choices=['left_bottom', 'left_middle', 'left_top', 'middle_top',
+                                               'middle_middle', 'middle_bottom', 'right_bottom', 'right_middle',
+                                               'right_top'], help='Position for page numbers')
     args = parser.parse_args()
 
     if args.function == 'merge':
@@ -309,4 +311,3 @@ if __name__ == '__main__':
         protect_pdf(args.input, args.output, args.password)
     elif args.function == 'unlock_pdf':
         unlock_pdf(args.input, args.output, args.password)
-
