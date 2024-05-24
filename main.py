@@ -48,7 +48,7 @@ def compress_pdf(input_pdf, output_pdf, dpi=100):
         rect = page.rect
         pix = page.get_pixmap(dpi=dpi)
         unique_id = uuid.uuid4()
-        image_path = f"/tmp/comoress_{unique_id}_temp_page_{page_num}.jpg"
+        image_path = f"/tmp/compress_{unique_id}_temp_page_{page_num}.jpg"
         pix.save(image_path)
         new_page = new_doc.new_page(width=rect.width, height=rect.height)
         new_page.insert_image(rect, filename=image_path)
@@ -63,10 +63,6 @@ def pdf_to_word(input_pdf, output_docx):
     cv = Converter(input_pdf)
     cv.convert(output_docx, start=0, end=None)
     cv.close()
-
-
-def pdf_to_pptx(input_pdf, pptx_file):
-    pass
 
 
 def pdf_to_excel(input_pdf, output_excel):
@@ -94,15 +90,6 @@ def word_to_pdf(input_docx, output_pdf):
         shutil.move(temp_pdf_path, output_pdf)
     else:
         print(f"Looks like there is an error in pdf conversion process with return code {retCode}")
-
-
-def ppt_to_pdf(input_ppt, output_pdf):
-    try:
-        prs = Presentation(input_ppt)
-        prs.save(output_pdf)
-        print("Преобразование успешно завершено!")
-    except Exception as e:
-        print(f"Произошла ошибка: {e}")
 
 
 def excel_to_pdf(input_xlsx, output_pdf):
@@ -157,25 +144,12 @@ def jpg_to_pdf(input_folder, output_pdf):
     pdf = FPDF()
     filenames = os.listdir(input_folder)
     sorted_filenames = sorted(filenames, key=custom_sort_key)
-    print(sorted_filenames)
     for filename in sorted_filenames:
         if filename.endswith(".jpg"):
             pdf.add_page()
             image_path = os.path.join(input_folder, filename)
             pdf.image(image_path, 0, 0, 210, 297)
     pdf.output(output_pdf, "F")
-
-
-def html_to_pdf(url, output_path):
-    async def _html_to_pdf():
-        browser = await launch(headless=True)
-        page = await browser.newPage()
-        await page.goto(url, {'waitUntil': 'networkidle2'})
-        await page.pdf({'path': output_path, 'format': 'A4'})
-        await browser.close()
-        print(f"PDF successfully created at {output_path}")
-
-    asyncio.get_event_loop().run_until_complete(_html_to_pdf())
 
 
 def create_page_pdf(num, tmp, position=(105*mm, 20*mm)):
@@ -187,7 +161,8 @@ def create_page_pdf(num, tmp, position=(105*mm, 20*mm)):
 
 
 def add_page_numbers(pdf_path, newpath, position=(100, 20)):
-    tmp = "__tmp.pdf"
+    unique_id = uuid.uuid4()
+    tmp = f"/tmp/add_page_numbers{unique_id}_temp.pdf"
     position = (position[0]*mm, position[1]*mm)
     writer = PdfWriter()
     with open(pdf_path, "rb") as f:
